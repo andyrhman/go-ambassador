@@ -1,0 +1,22 @@
+services:
+  backend:
+    build: .
+    ports:
+      - 8000:8000
+    volumes:
+      - .:/app
+
+  db:
+    image: postgres:16
+    restart: always
+    env_file:
+      - ./.env
+    volumes:
+      - ./.pgdata:/var/lib/postgresql/data
+    ports:
+      - 54321:5432
+
+  redis:
+    image: redis:latest
+    ports:
+      - 6379:6379
