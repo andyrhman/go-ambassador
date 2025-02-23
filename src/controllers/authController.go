@@ -5,6 +5,7 @@ import (
 	"go-ambassador/src/middlewares"
 	"go-ambassador/src/models"
 	"go-ambassador/src/utils"
+	"go-ambassador/src/validators"
 	"strings"
 	"time"
 
@@ -181,7 +182,7 @@ func UpdatePassword(c *fiber.Ctx) error {
 
 	uid, _ := uuid.Parse(id)
 
-	var req map[string]string
+	var req validators.PasswordRequest
 
 	if err := c.BodyParser(&req); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -189,10 +190,9 @@ func UpdatePassword(c *fiber.Ctx) error {
 		})
 	}
 
-	if req["password"] != req["confirm_password"] {
-		c.Status(400)
-		return c.JSON(fiber.Map{
-			"message": "Passwords do not match!",
+	if err := validators.ValidatePassword(req); err != nil {
+		return c.Status(err.Code).JSON(fiber.Map{
+			"error": err.Message,
 		})
 	}
 
@@ -200,7 +200,7 @@ func UpdatePassword(c *fiber.Ctx) error {
 		Id: uid,
 	}
 
-	user.SetPassword(req["password"])
+	user.SetPassword(req.Password)
 
 	if err := db.DB.Model(&user).Updates(user).Error; err != nil {
 		return c.JSON(fiber.Map{
