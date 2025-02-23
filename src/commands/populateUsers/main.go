@@ -19,8 +19,6 @@ func main() {
 			Isambassador: true,
 		}
 
-		users.SetPassword("123123")
-
 		if err := db.DB.Create(&users).Error; err != nil {
 			log.Fatalf("Error seeding users: %v", err)
 		}

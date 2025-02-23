@@ -86,7 +86,7 @@ func Login(c *fiber.Ctx) error {
 			"message": "Invalid credentials!",
 		})
 	}
-
+	
 	tokenString, err := utils.GenerateJwt(user.Id.String())
 
 	if err != nil {

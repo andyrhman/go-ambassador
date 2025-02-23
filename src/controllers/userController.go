@@ -7,7 +7,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func AllAmbassadors(c *fiber.Ctx) error {
+func Ambassadors(c *fiber.Ctx) error {
 	var users []models.User
 
 	db.DB.Where("isambassador = ?", true).Find(&users)
