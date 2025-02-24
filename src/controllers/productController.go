@@ -1,8 +1,11 @@
 package controllers
 
 import (
+	"context"
+	"encoding/json"
 	"go-ambassador/src/db"
 	"go-ambassador/src/models"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
@@ -78,4 +81,33 @@ func DeleteProduct(c *fiber.Ctx) error {
 	db.DB.Where("id = ?", uid).Delete(product)
 
 	return c.Status(204).JSON(nil)
+}
+
+func ProductsFrontend(c *fiber.Ctx) error {
+	var products []models.Product
+	var ctx = context.Background()
+
+	result, err := db.Cache.Get(ctx, "products_frontend").Result()
+
+	if err != nil {
+		db.DB.Find(&products)
+
+		bytes, err := json.Marshal(products)
+
+		if err != nil {
+			panic(err)
+		}
+
+		if errKey := db.Cache.Set(ctx, "products_frontend", bytes, 30*time.Minute).Err(); errKey != nil {
+			panic(errKey)
+		}
+	} else {
+		json.Unmarshal([]byte(result), &products)
+	}
+
+	return c.JSON(products)
+}
+
+func ProductsBackend(c *fiber.Ctx) error {
+	return nil
 }

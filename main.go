@@ -11,6 +11,7 @@ import (
 func main() {
 	db.Connect()
 	db.AutoMigrate()
+	db.SetupRedis()
 
 	app := fiber.New()
 
