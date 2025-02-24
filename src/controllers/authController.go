@@ -131,7 +131,7 @@ func User(c *fiber.Ctx) error {
 	if strings.Contains(c.Path(), "api/ambassador") {
 		ambassador := models.Ambassador(user)
 		ambassador.CalculateRevenue(db.DB)
-		return c.JSON(user)
+		return c.JSON(ambassador)
 	}
 
 	return c.JSON(user)
