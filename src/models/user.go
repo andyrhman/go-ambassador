@@ -6,12 +6,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/google/uuid"
 	"golang.org/x/crypto/argon2"
 )
 
 type User struct {
-	Id           uuid.UUID `json:"id" gorm:"type:uuid;default:gen_random_uuid();primaryKey"`
+	Model
 	Fullname     string    `json:"fullname"`
 	Username     string    `json:"username"`
 	Email        string    `json:"email" gorm:"unique"`

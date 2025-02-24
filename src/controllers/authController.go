@@ -86,7 +86,7 @@ func Login(c *fiber.Ctx) error {
 			"message": "Invalid credentials!",
 		})
 	}
-	
+
 	tokenString, err := utils.GenerateJwt(user.Id.String())
 
 	if err != nil {
@@ -196,9 +196,8 @@ func UpdatePassword(c *fiber.Ctx) error {
 		})
 	}
 
-	user := models.User{
-		Id: uid,
-	}
+	user := models.User{}
+	user.Id = uid
 
 	user.SetPassword(req.Password)
 

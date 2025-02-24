@@ -42,9 +42,8 @@ func UpdateProduct(c *fiber.Ctx) error {
 
 	uid, _ := uuid.Parse(id)
 
-	product := models.Product{
-		Id: uid,
-	}
+	product := models.Product{}
+	product.Id = uid
 
 	if err := c.BodyParser(&product); err != nil {
 		return c.Status(400).JSON(fiber.Map{
