@@ -7,15 +7,17 @@ import (
 	"strings"
 
 	"golang.org/x/crypto/argon2"
+	"gorm.io/gorm"
 )
 
 type User struct {
 	Model
-	Fullname     string    `json:"fullname"`
-	Username     string    `json:"username"`
-	Email        string    `json:"email" gorm:"unique"`
-	Password     []byte    `json:"-"`
-	Isambassador bool      `json:"-"`
+	Fullname     string   `json:"fullname"`
+	Username     string   `json:"username"`
+	Email        string   `json:"email" gorm:"unique"`
+	Password     []byte   `json:"-"`
+	Isambassador bool     `json:"-"`
+	Revenue      *float64 `json:"revenue,omitempty" gorm:"-"`
 }
 
 func generateSalt() []byte {
@@ -36,26 +38,63 @@ func (user *User) SetPassword(password string) {
 }
 
 func (user *User) ComparePassword(inputPassword string) bool {
-	// Convert stored password (which is a []byte) to a string
 	storedHash := string(user.Password)
 	parts := strings.Split(storedHash, "$")
 	if len(parts) != 6 {
-		return false // Invalid hash format
+		return false
 	}
 
-	// Extract salt & stored hash from the split parts
 	encodedSalt := parts[4]
 	encodedStoredHash := parts[5]
 
-	// Decode salt from base64
 	salt, err := base64.StdEncoding.DecodeString(encodedSalt)
 	if err != nil {
 		return false
 	}
 
-	// Hash the input password using the extracted salt
 	newHash := argon2.IDKey([]byte(inputPassword), salt, 3, 64*1024, 4, 32)
 
-	// Compare the computed hash with the stored hash
 	return base64.StdEncoding.EncodeToString(newHash) == encodedStoredHash
+}
+
+type Admin User
+
+func (admin *Admin) CalculateRevenue(db *gorm.DB) {
+	var orders []Order
+
+	db.Preload("OrderItems").Find(&orders, &Order{
+		UserId:   admin.Id,
+		Complete: true,
+	})
+
+	var revenue float64 = 0
+
+	for _, order := range orders {
+		for _, orderItem := range order.OrderItems {
+			revenue += orderItem.AdminRevenue
+		}
+	}
+
+	admin.Revenue = &revenue
+}
+
+type Ambassador User
+
+func (ambassador *Ambassador) CalculateRevenue(db *gorm.DB) {
+	var orders []Order
+
+	db.Preload("OrderItems").Find(&orders, &Order{
+		UserId:   ambassador.Id,
+		Complete: true,
+	})
+
+	var revenue float64 = 0.0
+
+	for _, order := range orders {
+		for _, orderItem := range order.OrderItems {
+			revenue += orderItem.AmbassadorRevenue
+		}
+	}
+
+	ambassador.Revenue = &revenue
 }

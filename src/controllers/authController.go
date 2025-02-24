@@ -4,7 +4,6 @@ import (
 	"go-ambassador/src/db"
 	"go-ambassador/src/middlewares"
 	"go-ambassador/src/models"
-	"go-ambassador/src/utils"
 	"go-ambassador/src/validators"
 	"strings"
 	"time"
@@ -30,7 +29,7 @@ func Register(c *fiber.Ctx) error {
 		Fullname:     data["fullname"],
 		Username:     data["username"],
 		Email:        data["email"],
-		Isambassador: false,
+		Isambassador: strings.Contains(c.Path(), "/api/ambassador"),
 	}
 
 	user.SetPassword(data["password"])
@@ -87,8 +86,23 @@ func Login(c *fiber.Ctx) error {
 		})
 	}
 
-	tokenString, err := utils.GenerateJwt(user.Id.String())
+	isAmbassador := strings.Contains(c.Path(), "api/ambassador")
 
+	var scope string
+	if isAmbassador {
+		scope = "ambassador"
+	} else {
+		scope = "admin"
+	}
+
+	// ! Prevent ambassador login into admin login endpoint
+	if !isAmbassador && user.Isambassador {
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"message": "Unauthorized",
+		})
+	}
+
+	tokenString, err := middlewares.GenerateJwt(user.Id.String(), scope)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"message": "Could not login",
@@ -113,6 +127,12 @@ func User(c *fiber.Ctx) error {
 	var user models.User
 
 	db.DB.Where("id = ?", id).First(&user)
+
+	if strings.Contains(c.Path(), "api/ambassador") {
+		ambassador := models.Ambassador(user)
+		ambassador.CalculateRevenue(db.DB)
+		return c.JSON(user)
+	}
 
 	return c.JSON(user)
 }
