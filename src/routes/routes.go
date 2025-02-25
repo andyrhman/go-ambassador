@@ -53,5 +53,6 @@ func Setup(app *fiber.App) {
 
 	ambassadorAuthenticated.Post("links", controllers.CreateLinks)
 	ambassadorAuthenticated.Get("stats", controllers.Stats)
+	ambassadorAuthenticated.Get("rankings", controllers.Rankings)
 
 }

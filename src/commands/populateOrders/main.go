@@ -21,11 +21,17 @@ func main() {
 		log.Fatalf("No users found, cannot seed orders")
 	}
 
+	var links []models.Link
+	if err := db.DB.Find(&links).Error; err != nil {
+		log.Fatalf("Error fetching links: %v", err)
+	}
+
 	for i := 0; i < 30; i++ {
 		user := users[i%len(users)]
+		link := links[i%len(links)]
 
 		order := models.Order{
-			Code:            gofakeit.LetterN(7),
+			Code:            link.Code,
 			AmbassadorEmail: gofakeit.Email(),
 			UserId:          user.Id,
 			FullName:        gofakeit.Name(),
@@ -39,11 +45,11 @@ func main() {
 
 		for j := 0; j < gofakeit.Number(1, 5); j++ {
 			item := models.OrderItem{
-				ProductTitle:       gofakeit.ProductName(),
-				Price:              float64(gofakeit.Number(100000, 5000000)),
-				Quantity:           uint(gofakeit.Number(1, 5)),
-				AmbassadorRevenue:  float64(gofakeit.Number(10000, 500000)),
-				AdminRevenue:       float64(gofakeit.Number(1000, 50000)),
+				ProductTitle:      gofakeit.ProductName(),
+				Price:             float64(gofakeit.Number(100000, 5000000)),
+				Quantity:          uint(gofakeit.Number(1, 5)),
+				AmbassadorRevenue: float64(gofakeit.Number(10000, 500000)),
+				AdminRevenue:      float64(gofakeit.Number(1000, 50000)),
 			}
 			order.OrderItems = append(order.OrderItems, item)
 		}
