@@ -17,7 +17,7 @@ type User struct {
 	Email        string   `json:"email" gorm:"unique"`
 	Password     []byte   `json:"-"`
 	Isambassador bool     `json:"-"`
-	Revenue      *float64 `json:"revenue,omitempty" gorm:"-"`
+	Revenue      *float64 `json:"revenue,omitempty" gorm:"-"` // Remove the null data using omitempty
 }
 
 func generateSalt() []byte {

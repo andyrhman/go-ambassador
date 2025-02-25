@@ -98,3 +98,17 @@ func Stats(c *fiber.Ctx) error {
 
 	return c.JSON(result)
 }
+
+func GetLink(c *fiber.Ctx) error {
+	code := c.Params("code")
+
+	var link models.Link
+
+	if err := db.DB.Preload("User").Preload("Products").Find(&link, &models.Link{
+		Code: code,
+	}).Error; err != nil {
+		return c.Status(404).JSON(fiber.Map{"message": "Code not found"})
+	}
+
+	return c.JSON(link)
+}

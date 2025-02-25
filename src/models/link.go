@@ -8,5 +8,5 @@ type Link struct {
 	UserId   uuid.UUID `json:"user_id"`
 	User     User      `json:"user" gorm:"foreignKey:UserId"`
 	Products []Product `json:"products" gorm:"many2many:link_products"`
-	Orders   []Order   `json:"orders,omitempty" gorm:"-"`
+	Orders   []Order   `json:"orders,omitempty" gorm:"-"` // Remove the null data using omitempty
 }
