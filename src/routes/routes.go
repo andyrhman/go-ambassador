@@ -52,4 +52,6 @@ func Setup(app *fiber.App) {
 	ambassadorAuthenticated.Put("users/password", controllers.UpdatePassword)
 
 	ambassadorAuthenticated.Post("links", controllers.CreateLinks)
+	ambassadorAuthenticated.Get("stats", controllers.Stats)
+
 }
