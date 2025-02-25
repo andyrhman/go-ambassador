@@ -18,7 +18,7 @@ func main() {
 			Title:       gofakeit.ProductName(),
 			Description: gofakeit.ProductDescription(),
 			Image:       imageURL,
-			Price:       gofakeit.Product().Price,
+			Price:       float64(gofakeit.Number(100000, 5000000)),
 		}
 
 		if err := db.DB.Create(&products).Error; err != nil {
