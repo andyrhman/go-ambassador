@@ -15,7 +15,7 @@ func main() {
 	db.SetupCacheChannel()
 
 	app := fiber.New()
-
+    // this is the cors
 	app.Use(cors.New(cors.Config{
 		AllowCredentials: true,
 		AllowOrigins:     "http://localhost:3000",
